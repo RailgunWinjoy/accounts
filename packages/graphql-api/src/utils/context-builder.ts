@@ -3,7 +3,7 @@ import { getClientIp } from 'request-ip';
 import { AccountsRequest, AccountsModuleConfig } from '../modules';
 
 export const context = (moduleName: string) => async (
-  { req, connection }: AccountsRequest,
+  { req, connection,jwtOnly,rawToken }: AccountsRequest,
   _: any,
   { injector }: ModuleSessionInfo
 ) => {
@@ -24,14 +24,23 @@ export const context = (moduleName: string) => async (
   }
 
   const config: AccountsModuleConfig = injector.get(ModuleConfig(moduleName));
-  const headerName = config.headerName || 'Authorization';
-  let authToken = (req.headers[headerName] || req.headers[headerName.toLowerCase()]) as string;
-  authToken = authToken && authToken.replace('Bearer ', '');
+
+  let authToken;
+  
+    if(rawToken){
+      authToken = rawToken
+    }else{
+      const headerName = config.headerName || 'Authorization';
+      authToken =  (req.headers[headerName] || req.headers[headerName.toLowerCase()]) as string;
+      authToken = authToken && authToken.replace('Bearer ', '');
+    }
+ 
+
   let user;
 
   if (authToken && !config.excludeAddUserInContext) {
     try {
-      user = await config.accountsServer.resumeSession(authToken);
+      user = await config.accountsServer.resumeSession(authToken,jwtOnly);
     } catch (error) {
       // Empty catch
     }

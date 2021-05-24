@@ -19,6 +19,8 @@ import { CoreAccountsModule } from '../core';
 export interface AccountsRequest {
   req: IncomingMessage;
   connection?: any;
+  jwtOnly: boolean;
+  rawToken:String;
 }
 
 export interface AccountsModuleConfig {

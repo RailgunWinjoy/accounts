@@ -478,7 +478,7 @@ Please set ambiguousErrorMessages to false to be able to use autologin.`
    * @returns Return the user associated to the session.
    * @throws {@link ResumeSessionErrors}
    */
-  public async resumeSession(accessToken: string): Promise<CustomUser> {
+  public async resumeSession(accessToken: string, jwtOnly: boolean): Promise<CustomUser> {
     try {
       if (!isString(accessToken)) {
         throw new AccountsJsError('An accessToken is required', ResumeSessionErrors.InvalidToken);
@@ -497,6 +497,10 @@ Please set ambiguousErrorMessages to false to be able to use autologin.`
           'Tokens are not valid',
           ResumeSessionErrors.TokenVerificationFailed
         );
+      }
+
+      if(jwtOnly){
+        return new User({_id:userId})
       }
 
       // If the session is stateful we check the validity of the token against the db
